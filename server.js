@@ -14,3 +14,12 @@ var allowCrossDomain = function (req, res, next) {
     next();
 };
 app.use(allowCrossDomain);
+
+var apiRoutes = express.Router();
+// connect the api routes under /api/*
+app.use('/api', apiRoutes);
+
+apiRoutes.get('/', function (req, res) {
+   console.log('testapp');
+
+});
