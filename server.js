@@ -23,3 +23,13 @@ apiRoutes.get('/', function (req, res) {
    res.send('testapp');
 
 });
+
+apiRoutes.get('/matchlist', function (req, res) {
+    request({
+        url: 'https://query.yahooapis.com/v1/yql?q=desc%20cricket.scorecard.live&format=json&diagnostics=true&callback=',
+        json: true
+    }, function (error, response, body) {
+        console.log(JSON.stringify(body, undefined, 2));
+    });
+
+});
