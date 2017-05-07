@@ -1,0 +1,15 @@
+{
+  "name": "cricScore_Server",
+  "author": "Abhishek.k",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.15.2"
+  },
+  "description": "cricScore: An Ionic project",
+  "engines": {
+    "node": "7.7.2"
+  }
+}
