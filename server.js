@@ -1,9 +1,14 @@
 var express = require('express');
 var path = require('path');
+var request = require('request');
 var app = express();
+
+//static value
+var apikey = 'E08rQGFIbOPj24fZOywW5RQijTq1';
+
 // Start server
 app.set('port', process.env.PORT || 3000);
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), function () {
     console.log('listning to Port', app.get('port'));
 });
 
@@ -20,16 +25,100 @@ var apiRoutes = express.Router();
 app.use('/api', apiRoutes);
 
 apiRoutes.get('/', function (req, res) {
-   res.send('testapp');
+    res.send('testapp');
 
 });
 
 apiRoutes.get('/matchlist', function (req, res) {
     request({
-        url: 'https://query.yahooapis.com/v1/yql?q=desc%20cricket.scorecard.live&format=json&diagnostics=true&callback=',
+        url: 'http://cricapi.com/api/matches/',
+        headers: {
+            'apikey': apikey
+        },
         json: true
     }, function (error, response, body) {
-        console.log(JSON.stringify(body, undefined, 2));
-    });
+        if (response.statusCode === 200) {
+            res.send(JSON.stringify(body, undefined, 2));
+        }
+        else {
+            res.send("Unable to fatch record", response);
+        }
 
+    });
+});
+
+apiRoutes.get('/scorelist', function (req, res) {
+    request({
+        url: 'http://cricapi.com/api/cricketScore/',
+        headers: {
+            'apikey': apikey,
+            'unique_id': req.uid
+        },
+        json: true
+    }, function (error, response, body) {
+        if (response.statusCode === 200) {
+            res.send(JSON.stringify(body, undefined, 2));
+        }
+        else {
+            res.send("Unable to fatch record", response);
+        }
+
+    });
+});
+
+apiRoutes.get('/playerstateist', function (req, res) {
+    request({
+        url: 'http://cricapi.com/api/playerStats?pid=35320',
+        headers: {
+            'apikey': apikey,
+            'pid': req.pid
+        },
+        json: true
+    }, function (error, response, body) {
+        if (response.statusCode === 200) {
+            res.send(JSON.stringify(body, undefined, 2));
+        }
+        else {
+            res.send("Unable to fatch record", response);
+        }
+
+    });
+});
+
+apiRoutes.get('/ballbyball', function (req, res) {
+    request({
+        url: 'http://cricapi.com/api/ballByBall',
+        headers: {
+            'apikey': apikey,
+            'unique_id': req.uid
+        },
+        json: true
+    }, function (error, response, body) {
+        if (response.statusCode === 200) {
+            res.send(JSON.stringify(body, undefined, 2));
+        }
+        else {
+            res.send("Unable to fatch record", response);
+        }
+
+    });
+});
+
+apiRoutes.get('/summary', function (req, res) {
+    request({
+        url: 'http://cricapi.com/api/fantasySummary/',
+        headers: {
+            'apikey': apikey,
+            'unique_id': req.uid
+        },
+        json: true
+    }, function (error, response, body) {
+        if (response.statusCode === 200) {
+            res.send(JSON.stringify(body, undefined, 2));
+        }
+        else {
+            res.send("Unable to fatch record", response);
+        }
+
+    });
 });
