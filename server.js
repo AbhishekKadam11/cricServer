@@ -25,6 +25,7 @@ var apiRoutes = express.Router();
 app.use('/api', apiRoutes);
 
 apiRoutes.get('/', function (req, res) {
+    console.log('test');
     res.send('testapp');
 
 });
