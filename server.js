@@ -13,7 +13,7 @@ app.listen(app.get('port'), function () {
 });
 
 var allowCrossDomain = function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:8100');
+    res.header('Access-Control-Allow-Origin', ['http://localhost:8100', 'http://cricscore11.herokuapp.com']);
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
 //  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
@@ -30,7 +30,12 @@ apiRoutes.get('/', function (req, res) {
 
 });
 
+var countries = ['India', 'Pakistan', 'Afghanistan', 'African Union', 'Australia', 'Bangladesh', 'Barbados', 'Bermuda', 'Canada', 'Ireland',
+                'Kenya', 'Netherlands', 'New Zealand', 'South Africa', 'Spain', 'Sri Lanka', 'Swaziland', 'United Arab Emirates', 'Zimbabwe',
+                'England', 'West Indies'];
+
 apiRoutes.get('/matchlist', function (req, res) {
+    var matches = [];
     request({
         url: 'http://cricapi.com/api/matches/',
         headers: {
@@ -39,7 +44,15 @@ apiRoutes.get('/matchlist', function (req, res) {
         json: true
     }, function (error, response, body) {
         if (response.statusCode === 200) {
-            res.send(JSON.stringify(body, undefined, 2));
+            var data = response['body']['matches'];
+            data.forEach(function (item) {
+                countries.forEach(function (c) {
+                    if (item['team-1'] === c || item['team-2'] === c)
+                       matches.push(item);
+                })
+            });
+            //console.log(data);
+            res.send(matches);
         }
         else {
             res.send("Unable to fatch record", response);
