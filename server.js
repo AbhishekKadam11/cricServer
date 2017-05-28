@@ -31,8 +31,8 @@ apiRoutes.get('/', function (req, res) {
 });
 
 var countries = ['India', 'Pakistan', 'Afghanistan', 'African Union', 'Australia', 'Bangladesh', 'Barbados', 'Bermuda', 'Canada', 'Ireland',
-                'Kenya', 'Netherlands', 'New Zealand', 'South Africa', 'Spain', 'Sri Lanka', 'Swaziland', 'United Arab Emirates', 'Zimbabwe',
-                'England', 'West Indies'];
+    'Kenya', 'Netherlands', 'New Zealand', 'South Africa', 'Spain', 'Sri Lanka', 'Swaziland', 'United Arab Emirates', 'Zimbabwe',
+    'England', 'West Indies'];
 
 apiRoutes.get('/matchlist', function (req, res) {
     var matches = [];
@@ -47,7 +47,7 @@ apiRoutes.get('/matchlist', function (req, res) {
             var data = response['body']['matches'];
             data.forEach(function (item) {
                 countries.forEach(function (c) {
-                    if (item['team-1'] === c || item['team-2'] === c)
+                    if (item['team-1'] === c)
                        matches.push(item);
                 })
             });
