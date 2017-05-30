@@ -61,12 +61,13 @@ apiRoutes.get('/matchlist', function (req, res) {
     });
 });
 
-apiRoutes.get('/scorelist', function (req, res) {
+apiRoutes.get('/scorelist/:u_id', function (req, res) {
+   // res.send(JSON.stringify(req));
+ //   console.log(req);
     request({
-        url: 'http://cricapi.com/api/cricketScore/',
+        url: 'http://cricapi.com/api/cricketScore' + '?' + 'unique_id=' + req.params.u_id,
         headers: {
-            'apikey': apikey,
-            'unique_id': req.uid
+            'apikey': apikey
         },
         json: true
     }, function (error, response, body) {
