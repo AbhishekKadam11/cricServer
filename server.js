@@ -108,6 +108,7 @@ apiRoutes.get('/matchlist', function (req, res) {
     }
 
 apiRoutes.get('/scorelist/:u_id', function (req, res) {
+    var matchdetails;
     async.parallel([
         function (next) {
             request({
@@ -118,7 +119,8 @@ apiRoutes.get('/scorelist/:u_id', function (req, res) {
                 json: true
             }, function (error, response, body) {
                 if (response.statusCode === 200) {
-                    next(null, body);
+                    matchdetails['scoredata'] = body;
+                    next(null, matchdetails);
                 }
                 else {
                     res.send("Unable to fatch record", response);
@@ -134,8 +136,8 @@ apiRoutes.get('/scorelist/:u_id', function (req, res) {
                 json: true
             }, function (error, response, body) {
                 if (response.statusCode === 200) {
-                    //   balldetails = body;
-                    next(null, body);
+                    matchdetails['balldetails'] = body;
+                    next(null, matchdetails);
                     //    result = body;
                     //  res.send(JSON.stringify(body, undefined, 2));
                 }
@@ -147,7 +149,7 @@ apiRoutes.get('/scorelist/:u_id', function (req, res) {
         }], function (err, results) {
         // results is [firstData, secondData]
         //   console.log(matchscore,balldetails);
-        res.send(results);
+        res.send(matchdetails);
     });
 });
 
