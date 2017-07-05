@@ -87,28 +87,8 @@ apiRoutes.get('/matchlist', function (req, res) {
 //     });
 // });
 
-    function ballSummary(uid, result) {
-        request({
-            url: 'http://cricapi.com/api/ballByBall',
-            headers: {
-                'apikey': apikey,
-                'unique_id': uid
-            },
-            json: true
-        }, function (error, response, body) {
-            if (response.statusCode === 200) {
-                result = body;
-              //  res.send(JSON.stringify(body, undefined, 2));
-            }
-            else {
-                res.send("Unable to fatch record", response);
-            }
-
-        });
-    }
-
 apiRoutes.get('/scorelist/:u_id', function (req, res) {
-    var matchdetails;
+    var matchdetails = {};
     async.parallel([
         function (next) {
             request({
