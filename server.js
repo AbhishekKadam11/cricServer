@@ -126,7 +126,29 @@ apiRoutes.get('/scorelist/:u_id', function (req, res) {
                 }
             });
 
-        }], function (err, results) {
+        },
+        function (next) {
+            request({
+                url: 'http://cricapi.com/api/fantasySummary' + '?' + 'unique_id=' + req.params.u_id,
+                headers: {
+                    'apikey': apikey
+                },
+                json: true
+            }, function (error, response, body) {
+                if (response.statusCode === 200) {
+                    matchdetails['summary'] = body;
+                    next(null, matchdetails);
+                    //    result = body;
+                    //  res.send(JSON.stringify(body, undefined, 2));
+                }
+                else {
+                    res.send("Unable to fatch record", response);
+                }
+            });
+
+        }
+
+    ], function (err, results) {
         // results is [firstData, secondData]
         //   console.log(matchscore,balldetails);
         res.send(matchdetails);
@@ -136,10 +158,10 @@ apiRoutes.get('/scorelist/:u_id', function (req, res) {
 
 apiRoutes.get('/playerstateist', function (req, res) {
     request({
-        url: 'http://cricapi.com/api/playerStats?pid=35320',
+        url: 'http://cricapi.com/api/playerStats' + '?' + 'pid=' + req.params.pid,
         headers: {
-            'apikey': apikey,
-            'pid': req.pid
+            'apikey': apikey
+            // 'pid': req.pid
         },
         json: true
     }, function (error, response, body) {
@@ -172,12 +194,12 @@ apiRoutes.get('/playerstateist', function (req, res) {
 //     });
 // });
 
-apiRoutes.get('/summary', function (req, res) {
+apiRoutes.get('/summary/:u_id', function (req, res) {
     request({
-        url: 'http://cricapi.com/api/fantasySummary/',
+        url: 'http://cricapi.com/api/fantasySummary/'+ '?' + 'unique_id=' + req.params.u_id,
         headers: {
-            'apikey': apikey,
-            'unique_id': req.uid
+            'apikey': apikey
+            // 'unique_id': req.uid
         },
         json: true
     }, function (error, response, body) {
