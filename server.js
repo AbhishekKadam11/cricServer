@@ -48,8 +48,13 @@ apiRoutes.get('/matchlist', function (req, res) {
             var data = response['body']['matches'];
             data.forEach(function (item) {
                 countries.forEach(function (c) {
-                    if (item['team-1'] === c)
-                       matches.push(item);
+                    if (item['team-1'] === c) {
+                        matches.push(item);
+                    }
+                    var women = c + " Women";
+                    if (item['team-1'] === women) {
+                        matches.push(item);
+                    }
                 })
             });
             //console.log(data);
