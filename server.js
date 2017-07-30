@@ -5,7 +5,8 @@ var async = require("async");
 var app = express();
 
 //static value
-var apikey = 'E08rQGFIbOPj24fZOywW5RQijTq1';
+ //var apikey = 'E08rQGFIbOPj24fZOywW5RQijTq1';
+var apikey = 'tr0ICcbryRYGRJtgEmvlUFYWdLo1';
 
 // Start server
 app.set('port', process.env.PORT || 3000);
@@ -44,25 +45,31 @@ apiRoutes.get('/matchlist', function (req, res) {
         },
         json: true
     }, function (error, response, body) {
-        if (response.statusCode === 200) {
-            var data = response['body']['matches'];
-            data.forEach(function (item) {
-                countries.forEach(function (c) {
-                    if (item['team-1'] === c) {
-                        matches.push(item);
-                    }
-                    var women = c + " Women";
-                    if (item['team-1'] === women) {
-                        matches.push(item);
-                    }
-                })
-            });
-            //console.log(data);
-            res.send(matches);
+        if(!error) {
+            if (response.statusCode === 200) {
+                var data = response['body']['matches'];
+                data.forEach(function (item) {
+                    countries.forEach(function (c) {
+                        if (item['team-1'] === c) {
+                            matches.push(item);
+                        }
+                        var women = c + " Women";
+                        if (item['team-1'] === women) {
+                            matches.push(item);
+                        }
+                    })
+                });
+                //console.log(data);
+                res.send(matches);
+            }
+            else {
+                res.send("Unable to fatch record", response);
+            }
+        } else {
+            res.send("Server time out");
         }
-        else {
-            res.send("Unable to fatch record", response);
-        }
+
+
 
     });
 });
@@ -103,13 +110,16 @@ apiRoutes.get('/scorelist/:u_id', function (req, res) {
                 },
                 json: true
             }, function (error, response, body) {
-                if (response.statusCode === 200) {
-                    matchdetails['scoredata'] = body;
-                    next(null, matchdetails);
+                if(!error) {
+                    if (response.statusCode === 200) {
+                        matchdetails['scoredata'] = body;
+                        next(null, matchdetails);
+                    }
+                    else {
+                        res.send("Unable to fatch record", response);
+                    }
                 }
-                else {
-                    res.send("Unable to fatch record", response);
-                }
+
             });
         },
         function (next) {
@@ -120,15 +130,18 @@ apiRoutes.get('/scorelist/:u_id', function (req, res) {
                 },
                 json: true
             }, function (error, response, body) {
-                if (response.statusCode === 200) {
-                    matchdetails['balldetails'] = body;
-                    next(null, matchdetails);
-                    //    result = body;
-                    //  res.send(JSON.stringify(body, undefined, 2));
+                if(!error && !body.error) {
+                    if (response.statusCode === 200) {
+                        matchdetails['balldetails'] = body;
+                        next(null, matchdetails);
+                        //    result = body;
+                        //  res.send(JSON.stringify(body, undefined, 2));
+                    }
+                    else {
+                        res.send("Unable to fatch record", response);
+                    }
                 }
-                else {
-                    res.send("Unable to fatch record", response);
-                }
+
             });
 
         },
@@ -140,15 +153,18 @@ apiRoutes.get('/scorelist/:u_id', function (req, res) {
                 },
                 json: true
             }, function (error, response, body) {
-                if (response.statusCode === 200) {
-                    matchdetails['summary'] = body;
-                    next(null, matchdetails);
-                    //    result = body;
-                    //  res.send(JSON.stringify(body, undefined, 2));
+                if(!error) {
+                    if (response.statusCode === 200) {
+                        matchdetails['summary'] = body;
+                        next(null, matchdetails);
+                        //    result = body;
+                        //  res.send(JSON.stringify(body, undefined, 2));
+                    }
+                    else {
+                        res.send("Unable to fatch record", response);
+                    }
                 }
-                else {
-                    res.send("Unable to fatch record", response);
-                }
+
             });
 
         }
