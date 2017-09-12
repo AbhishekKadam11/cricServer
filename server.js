@@ -28,36 +28,6 @@ apiRoutes.get('/', function (req, res) {
 
 });
 
-apiRoutes.get('/matchlist', function (req, res) {
-    var currentmatch;
-    var ongoing = [];
-    request({
-        url: 'http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20cricket.series.ongoing&format=json&diagnostics=true&env=store%3A%2F%2F0TxIGQMQbObzvU4Apia0V0&callback=',
-        // headers: {
-        //     'apikey': apikey
-        // },
-        json: true
-    }, function (error, response, body) {
-        if(!error) {
-            if (response.statusCode === 200) {
-                currentmatch = body.query.results.Series;
-                // if(currentmatch !== 0) {
-                //     currentmatch.forEach(function(item) {
-                //         ongoing.push(item);
-                //     //    console.log([item])
-                //     })
-                // }
-                res.send(currentmatch);
-            }
-            else {
-                res.send("Unable to fatch record", response);
-            }
-        } else {
-            res.send("Server time out");
-        }
-    });
-});
-
 apiRoutes.get('/scorecardlive', function (req, res) {
     var currentmatch=[];
     var livematch;
@@ -68,15 +38,37 @@ apiRoutes.get('/scorecardlive', function (req, res) {
     }, function (error, response, body) {
         if(!error) {
             if (response.statusCode === 200) {
-                livematch = body.query.results['Scorecard'];
-                livematch.forEach(function (match, key) {
-                    var data = {};
-                    for (var attributename in match) {
-                        data[attributename] = match[attributename];
+                if(body.query.results) {
+                    livematch = body.query.results['Scorecard'];
+                //    console.log(livematch);
+                    if(typeof livematch ==='Array'){
+                        livematch.forEach(function (match, key) {
+                            var data = {};
+                            for (var attributename in match) {
+                                data[attributename] = match[attributename];
+                            }
+                            ongoing.push(data);
+                        });
+                    } else {
+                      //  livematch = [];
+                        if(typeof livematch ==='object') {
+                            livematch = [body.query.results['Scorecard']];
+                            livematch.forEach(function (match, key) {
+                                var data = {};
+                                for (var attributename in match) {
+                                    data[attributename] = match[attributename];
+                                }
+                                ongoing.push(data);
+                            });
+                        }
+
                     }
-                    ongoing.push(data);
-                });
-                res.send(ongoing);
+
+                    res.send(ongoing);
+                } else {
+                    res.status(404).send("No live match found");
+                }
+
             }
             else {
                 res.send("Unable to fatch record", response);
@@ -93,12 +85,11 @@ apiRoutes.get('/pastmatches', function (req, res) {
         json: true
     }, function (error, response, body) {
         if(!response) {
-            console.log(response);
             if (body) {
                 res.send(body.query.results['Match']);
             }
             else {
-                res.send("Unable to fatch record", response);
+                res.status(404).send("Unable to fatch record", response);
             }
         } else {
             res.status(404).send("No defination found");
@@ -111,17 +102,62 @@ apiRoutes.get('/ongoingseries', function (req, res) {
         url: 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20cricket.series.ongoing&format=json&env=store%3A%2F%2F0TxIGQMQbObzvU4Apia0V0&callback=',
         json: true
     }, function (error, response, body) {
-        console.log(response);
-        if(!response) {
+        if(response) {
             if (body) {
-                res.send(body.query.results);
+                if(typeof body.query.results.Series === 'object') {
+                    res.send([body.query.results.Series]);
+                } else {
+                    res.send(body.query.results.Series);
+                }
+
             }
             else {
                 res.send("Unable to fatch record", response);
             }
         } else {
             res.status(404).send("No defination found");
+        }
+    });
+});
 
+apiRoutes.get('/serieshome/:SeriesId', function (req, res) {
+    request({
+        url: 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20cricket.series.ongoing%20where%20series_id%3D'+req.params.SeriesId +'&format=json&env=store%3A%2F%2F0TxIGQMQbObzvU4Apia0V0&callback=',
+        json: true
+    }, function (error, response, body) {
+        var matchsinseries;
+        var seriesdetails;
+        var matchlist = [];
+        var series = {};
+        var seriesdata = [];
+        if(response) {
+            if (body) {
+                 seriesdetails = body.query.results.Series;
+                 matchsinseries = body.query.results.Series.Schedule.Match;
+                 matchsinseries.forEach(function (item, key) {
+                    var data = {};
+                    for (var attributename in item) {
+                        data[attributename] = item[attributename];
+                    }
+                    matchlist.push(data);
+                });
+                for (var key in seriesdetails) {
+                    if (seriesdetails.hasOwnProperty(key)) {
+                        var data = {};
+                        data[key] = seriesdetails[key];
+                        seriesdata.push(data);
+                    }
+                }
+
+                series['seriesdetails'] = seriesdetails;
+                series['matchlist'] = matchlist;
+                res.send(series);
+            }
+            else {
+                res.send("Unable to fatch record", response);
+            }
+        } else {
+            res.status(404).send("No defination found");
         }
     });
 });
@@ -139,7 +175,6 @@ apiRoutes.get('/scorecard/:MatchId', function (req, res) {
     var scorecardtable;
     request({
         url: 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20cricket.scorecard%20where%20match_id%3D'+req.params.MatchId +'&format=json&diagnostics=true&env=store%3A%2F%2F0TxIGQMQbObzvU4Apia0V0&callback=',
-
         json: true
     }, function (error, response, body) {
         if(!error) {
@@ -153,7 +188,6 @@ apiRoutes.get('/scorecard/:MatchId', function (req, res) {
                 } else {
                     inning = innings.d.a.t;  //if their is only one inning done so far
                 }
-
                 for(var i=0; i< teams.length; i++ ){
                     var tm = teams[i].squad;
                     tm.forEach(function(squadData) {
@@ -314,7 +348,6 @@ apiRoutes.get('/playerstateist', function (req, res) {
 //         else {
 //             res.send("Unable to fatch record", response);
 //         }
-//
 //     });
 // });
 
