@@ -173,6 +173,7 @@ apiRoutes.get('/scorecard/:MatchId', function (req, res) {
     var test = [];
     var listinning = [];
     var scorecardtable;
+    var shortscorearray = [];
     request({
         url: 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20cricket.scorecard%20where%20match_id%3D'+req.params.MatchId +'&format=json&diagnostics=true&env=store%3A%2F%2F0TxIGQMQbObzvU4Apia0V0&callback=',
         json: true
@@ -184,9 +185,11 @@ apiRoutes.get('/scorecard/:MatchId', function (req, res) {
                 if(Array.isArray(innings)) {
                     innings.forEach(function(inn){
                         inning.push(inn.d.a.t);
+                        shortscorearray.push(inn.s.a);
                     }) ;
                 } else {
                     inning = innings.d.a.t;  //if their is only one inning done so far
+                    shortscorearray.push(inn.s.a);
                 }
                 for(var i=0; i< teams.length; i++ ){
                     var tm = teams[i].squad;
@@ -222,6 +225,16 @@ apiRoutes.get('/scorecard/:MatchId', function (req, res) {
                     });
                     inningData.push({no: 0, batting: listinning});
                 }
+
+                //-------to get shortscorecard with team name---------
+                shortscorearray.forEach(function(item){
+                    teams.forEach(function(team){
+                        if(item['i'] === team['i']){
+                            item['fullname'] = team['fn'];
+                            item['shortname'] = team['sn'];
+                        }
+                    })
+                });
 
                 matchdata['scorecard'] = inningData;
            //     console.log(matchdata);
